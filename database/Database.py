@@ -72,3 +72,14 @@ class Database(object):
         print sql
         self._curs.execute(sql)
         self._conn.commit()
+
+    def delete(self, table, cond=1):
+        sql = "DELETE FROM :tab WHERE ?"
+        sql = self.format_string(sql, table)
+        sql = str.replace(sql, "?", cond)
+
+        print sql
+        self._curs.execute(sql)
+        self._curs.execute("VACUUM")
+        self._conn.commit()
+        
