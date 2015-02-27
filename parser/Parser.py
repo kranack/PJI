@@ -9,8 +9,8 @@ class Parser:
     def __init__(self, mode):
         self._title_pattern = '#\+([A-Z]+): ([/0-9a-zA-Z ]+)'
         self._task_pattern = '(\*+)([\w\s\dàé]+)(:[\w\s\d]+:\s)*(#[0-9]+)*'
-        self._title_pattern = re.compile(ur+self._title_pattern, re.UNICODE)
-        self._task_pattern = re.compile(ur+self._task_pattern, re.UNICODE)
+        self._title_pattern = re.compile(self._title_pattern, re.UNICODE)
+        self._task_pattern = re.compile(self._task_pattern, re.UNICODE)
         self._mode = mode
 
     def start(self, orgfile):
