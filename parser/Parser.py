@@ -22,7 +22,7 @@ class Parser:
     
     def write(self, orgfile):
         self._out = orgfile
-        self.write_parse_text
+        self.write_parse_text()
 
     def get_parse_text(self):
         text = path(self._in).bytes()
@@ -41,7 +41,6 @@ class Parser:
         return _titles + _tasks
 
     def write_parse_text(self):
-        print "begin to write"
         flags = os.O_CREAT | os.O_EXCL | os.O_WRONLY
         
         try:
@@ -56,4 +55,3 @@ class Parser:
                 fo.write(self._text)
                 fo.close()
 
-        print "write ok"
