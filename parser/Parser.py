@@ -10,9 +10,15 @@ class Parser:
 
     def __init__(self):
         self._title_pattern = '#\+([A-Z]+): ([/0-9a-zA-Z ]+)'
-        self._task_pattern = '(\*+)([\w\s\dàé]+)(@\w+\s+)?(<[0-9]+/[0-9]+/[0-9]+>)?(:\w+:\s+)*(#[0-9]+)*'
+        self._task_global = '(\*+)([\w\s\dàé]+)(<[0-9]+/[0-9]+/[0-9]+>)?'
+        self._task_user = '(@\w+\s+)?'
+        self._task_tag = '(:\w+\s+:)*'
+        self._task_ref = '(#[0-9]+)*'
         self._title_pattern = re.compile(self._title_pattern, re.UNICODE)
-        self._task_pattern = re.compile(self._task_pattern, re.UNICODE)
+        self._task_global = re.compile(self._task_global, re.UNICODE)
+        self._task_user = re.compile(self._task_user, re.UNICODE)
+        self._task_tag = re.compile(self._task_tag, re.UNICODE)
+        self._task_ref = re.compile(self._task_ref, re.UNICODE)
 
     def start(self, orgfile):
         #assert orgfile is FileType
@@ -33,11 +39,13 @@ class Parser:
             for title in titles:
                  _titles += "{0} => {1}\n".format(title[0], title[1])
 
-        tasks = self._task_pattern.findall(text)
+        tasks = self._task_global.findall(text)
         if tasks:
             for task in tasks:
-                _tasks += "{0} => {1} {2} {3}\n".format(task[0], task[1], task[2], task[3])
-
+                _tasks += "{0} => {1} {2}\n".format(task[0], task[1], task[2])
+        users = self._task_user.findall(text)
+        print users
+        print _tasks
         return _titles + _tasks
 
     def write_parse_text(self):
