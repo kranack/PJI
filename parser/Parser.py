@@ -6,12 +6,17 @@ import re
 import os
 import errno
 
+"""
+Exemple de regex : (?P<priority>(\*+))(?P<string> [\w\s\dàé]+)(?P<date>\s*<[0-9]+/[0-9]+/[0-9]+>)?(?P<username>\s*@\w+)?(?P<tag>\s*:\w+:\s*)*(?P<ref>#\d+)?
+
+"""
+
 class Parser: 
 
     def __init__(self):
         self._title_pattern = '#\+([A-Z]+): ([/0-9a-zA-Z ]+)'
         self._task_global = '(\*+)([\w\s\dàé]+)(<[0-9]+/[0-9]+/[0-9]+>)?'
-        self._task_user = '(@\w+\s+)?'
+        self._task_user = '(@\w+)?'
         self._task_tag = '(:\w+\s+:)*'
         self._task_ref = '(#[0-9]+)*'
         self._title_pattern = re.compile(self._title_pattern, re.UNICODE)
@@ -32,7 +37,7 @@ class Parser:
 
     def get_parse_text(self):
         text = path(self._in).bytes()
-        _titles = _tasks = ""        
+        _titles = _tasks = _users = _tags = _refs = ""
         titles =  self._title_pattern.findall(text)
 
         if titles:
@@ -44,7 +49,23 @@ class Parser:
             for task in tasks:
                 _tasks += "{0} => {1} {2}\n".format(task[0], task[1], task[2])
         users = self._task_user.findall(text)
-        print users
+        if users:
+            for user in users:
+                if user != '':
+                    _users += "'{0}'\n".format(user)
+        tags = self._task_tag.findall(text)
+        if tags:
+            for tag in tags:
+                if tag != '':
+                    _tags += "{0}\n".format(tag)
+        refs = self._task_ref.findall(text)
+        if refs:
+            for ref in refs:
+                if ref != '':
+                    _refs += "{0}\n".format(ref)
+        print _refs
+        print _tags
+        print _users
         print _tasks
         return _titles + _tasks
 
