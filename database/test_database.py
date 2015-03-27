@@ -10,7 +10,7 @@ for row in before:
 
 #test.insert('Tasks', [("name", "Test"), ("date_create", "2015-02-17")])
 #test.update('Tasks', [("name", "Test1")], "id='1'")
-test.delete('Tasks', "name='Test1'")
+test.delete('Tasks', "1")
 
 after = test.select('Tasks')
 for row in after:
