@@ -59,7 +59,11 @@ class Parser:
                  _titles += "{0} => {1}\n".format(title[0], title[1])
         
         # Tasks recursive search
-        
+        #
+        # TODO: Save all matches in a list. 
+        #       Search users, tags and refs between two matches.
+        #       Record tasks, users, tags and refs
+        #
         offset = 0
         tasks = self._task_global.search(text, offset)
         while tasks != None:
