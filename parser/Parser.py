@@ -18,12 +18,17 @@ class Parser:
     def __init__(self):
     	self._db = Database.Database('database.db')
         self._title_pattern = '#\+([A-Z]+): ([/0-9a-zA-Z ]+)'
-        self._task_global = '(\*+)([ \w\dàé]+)(<[0-9]+/[0-9]+/[0-9]+>)?'
-        self._task_user = '\*+([\s\w\dàé<>/:]+(@\w+))*'
+        #self._task_global = '(\*+)([ \w\dàé]+)(<[0-9]+/[0-9]+/[0-9]+>)?'
+        self._task_keywords = ['DEADLINE', 'ASSIGN', 'FOLLOWERS', 'DEPENDS', 'SCHEDULED']
+        self._task_bloc = '(\*+)([\s\wàé:#<\/>@]+)'
+        self._task_date = '([A-Z]+)?:?\s+?([<0-9\/>]+)'
+        self._task_user = '([A-Z]+)?:?\s+?(@\w+)'
         self._task_tag = '(:\w+:)'
         self._task_ref = '(#[0-9]+)'
         self._title_pattern = re.compile(self._title_pattern, re.UNICODE)
-        self._task_global = re.compile(self._task_global, re.UNICODE)
+        #self._task_global = re.compile(self._task_global, re.UNICODE)
+        self._task_bloc = re.compile(self._task_bloc, re.UNICODE)
+        self._task_date = re.compile(self._task_date, re.UNICODE)
         self._task_user = re.compile(self._task_user, re.UNICODE)
         self._task_tag = re.compile(self._task_tag, re.UNICODE)
         self._task_ref = re.compile(self._task_ref, re.UNICODE)
@@ -65,29 +70,37 @@ class Parser:
         #       Record tasks, users, tags and refs
         #
         offset = 0
-        tasks = self._task_global.search(text, offset)
-        while tasks != None:
+        bloc = self._task_bloc.search(text, offset)
+        while bloc != None:
             #print tasks.groups()
             #print "({0},{1})\n".format(tasks.start(), tasks.end())
             
             # Record task
             
-            self._db.insert('Tasks', [("name", "{0}".format(tasks.group(2))), ("date_create", "{0}".format(tasks.group(3)))])
+            #self._db.insert('Tasks', [("name", "{0}".format(tasks.group(2))), ("date_create", "{0}".format(tasks.group(3)))])
             
             # User search
             
-            user = self._task_user.search(text, tasks.start())
-            if user != None:
-            	_users += "{0}\n".format(user.group(2))
-            offset = tasks.end()
+            users = self._task_user.findall(bloc.group(2))
+            if users:
+            	for user in users:
+            		if user[0]:
+            			if user[0] in self._task_keywords:
+            				if user[0] == 'ASSIGN':
+		            			_users += "{0} affiliated to task #{1}\n".format(user[1], offset)
+		            		elif user[0] == 'FOLLOWERS':
+		            			_users += "{0} follow task #{1}\n".format(user[1], offset)
+	            	else:
+	            		_users += "{0} affiliated to task #{1}\n".format(user[1], offset)
+            offset = bloc.end()
             
             # Display
             
-            _tasks += "{0} => {1} {2}\n".format(tasks.group(1), tasks.group(2), tasks.group(3) if tasks.group(3) != None  else '')
+            _tasks += "{0} => {1}\n".format(bloc.group(1), bloc.group(2))
             
             # Search next task
             
-            tasks = self._task_global.search(text, offset)
+            bloc = self._task_bloc.search(text, offset)
         
         #tasks = self._task_global.findall(text)
         #if tasks:
@@ -109,7 +122,7 @@ class Parser:
         #        if ref != '':
         #            _refs += "{0}\n".format(ref)
 
-        return "Infos:\n\n{0}\nTasks:\n\n{1}\nUsers affiliated to tasks:\n\n{2}".format(_titles, _tasks, _users)
+        return "Infos:\n\n{0}\nTasks:\n\n{1}\nUsers:\n\n{2}".format(_titles, _tasks, _users)
 
     def write_parse_text(self):
         flags = os.O_CREAT | os.O_EXCL | os.O_WRONLY
