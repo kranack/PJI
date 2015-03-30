@@ -2,9 +2,7 @@ import Database
 
 test = Database.Database('database.db')
 
-id = test.insert('Tasks', [("name", "Test1"), ("date_create", "2015-02-17")])
-
-print id
+test.insert('Tasks', [("name", "Test1"), ("date_create", "2015-02-17")])
 
 before = test.select('Tasks')
 for row in before:

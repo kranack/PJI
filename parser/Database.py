@@ -58,6 +58,7 @@ class Database(object):
         
         self._curs.execute(sql)
         self._conn.commit()
+        return self._curs.lastrowid
 
     def update(self, table, values, cond=1):
         sql = "UPDATE :tab SET :val WHERE ?"

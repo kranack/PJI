@@ -75,9 +75,31 @@ class Parser:
             #print tasks.groups()
             #print "({0},{1})\n".format(tasks.start(), tasks.end())
             
+            # Date search
+            
+            dates = self._task_date.findall(bloc.group(2))
+            deadline = scheduled = ""
+            if dates:
+            	for date in dates:
+            		if date[0]:
+            			if date[0] in self._task_keywords:
+            				if date[0] == 'DEADLINE':
+            					deadline = date[1]
+            				elif date[0] == 'SCHEDULED':
+            					scheduled = date[1]
+            		else:
+            			deadline = date[1]
+            
             # Record task
             
-            #self._db.insert('Tasks', [("name", "{0}".format(tasks.group(2))), ("date_create", "{0}".format(tasks.group(3)))])
+            #task_id = self._db.insert('Tasks', [("name", "{0}".format(tasks.group(2))), ("date_create", "{0}".format(tasks.group(3)))])
+            
+            # Tag search
+            
+            tags = self._task_tag.findall(bloc.group(2))
+            if tags:
+            	for date in dates:
+            		# Record tags
             
             # User search
             
