@@ -20,11 +20,12 @@ class Parser:
         self._title_pattern = '#\+([A-Z]+): ([/0-9a-zA-Z ]+)'
         #self._task_global = '(\*+)([ \w\dàé]+)(<[0-9]+/[0-9]+/[0-9]+>)?'
         self._task_keywords = ['DEADLINE', 'ASSIGN', 'FOLLOWERS', 'DEPENDS', 'SCHEDULED']
+        self._task_status = ['DONE', 'NEXT']
         self._task_bloc = '(\*+)([\s\wàé:#<\/>@]+)'
-        self._task_title = '([A-Z]+[a-z0-9 ]+)'
+        self._task_title = '(?<!@)([A-Z]+[éàa-z0-9 ]+)'
         self._task_date = '([A-Z]+)?:?\s+?([<0-9\/>]+)'
         self._task_user = '([A-Z]+)?:?\s+?(@\w+)'
-        self._task_tag = '(:\w+:)'
+        self._task_tag = ':(\w+):'
         self._task_ref = '(#[0-9]+)'
         self._title_pattern = re.compile(self._title_pattern, re.UNICODE)
         #self._task_global = re.compile(self._task_global, re.UNICODE)
@@ -67,9 +68,7 @@ class Parser:
         
         # Tasks recursive search
         #
-        # TODO: Save all matches in a list. 
-        #       Search users, tags and refs between two matches.
-        #       Record tasks, users, tags and refs
+        # TODO: Record users, affialiations and refs
         #
         offset = 0
         bloc = self._task_bloc.search(text, offset)
@@ -78,7 +77,16 @@ class Parser:
             #print "({0},{1})\n".format(tasks.start(), tasks.end())
             
             # Name search
-            
+            title_offset = 0
+            title = self._task_title.search(bloc.group(2), title_offset)
+            name = status = ""
+            while title != None:
+            	if title.group(1) in self._task_status:
+            		status = title.group(1)
+            	else:
+            		name = title.group(1)
+            	title_offset = title.end()
+            	title = self._task_title.search(bloc.group(2), title_offset)
 
             # Date search
             
@@ -103,8 +111,9 @@ class Parser:
             
             tags = self._task_tag.findall(bloc.group(2))
             if tags:
-            	for date in dates:
-            		# Record tags
+            	for tag in tags:
+            		tag_id = self._db.insert('Tags', [("label", tag)])
+            		self._db.insert('Attach_Tag', [("tag_id", tag_id), ("task_id", task_id)])
             
             # User search
             
@@ -115,10 +124,13 @@ class Parser:
             			if user[0] in self._task_keywords:
             				if user[0] == 'ASSIGN':
 		            			_users += "{0} affiliated to task #{1}\n".format(user[1], offset)
+		            			#self._db.insert('Assign_Tasks', [])
 		            		elif user[0] == 'FOLLOWERS':
 		            			_users += "{0} follow task #{1}\n".format(user[1], offset)
+		            			#self._db.insert('Follow_Tasks', [])
 	            	else:
 	            		_users += "{0} affiliated to task #{1}\n".format(user[1], offset)
+            			#self._db.insert('Assign_Tasks', [])
             offset = bloc.end()
             
             # Display
@@ -128,26 +140,8 @@ class Parser:
             # Search next task
             
             bloc = self._task_bloc.search(text, offset)
-        
-        #tasks = self._task_global.findall(text)
-        #if tasks:
-        #    for task in tasks:
-        #        _tasks += "{0} => {1} {2}\n".format(task[0], task[1], task[2])
-        #users = self._task_user.findall(text)
-        #if users:
-        #    for user in users:
-        #        if user != '':
-        #            _users += "'{0}'\n".format(user)
-        #tags = self._task_tag.findall(text)
-        #if tags:
-        #    for tag in tags:
-        #        if tag != '':
-        #            _tags += "{0}\n".format(tag)
-        #refs = self._task_ref.findall(text)
-        #if refs:
-        #    for ref in refs:
-        #        if ref != '':
-        #            _refs += "{0}\n".format(ref)
+            
+       	### End Bloc Search
 
         return "Infos:\n\n{0}\nTasks:\n\n{1}\nUsers:\n\n{2}".format(_titles, _tasks, _users)
 

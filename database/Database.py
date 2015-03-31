@@ -78,9 +78,13 @@ class Database(object):
         sql = "DELETE FROM :tab WHERE ?"
         sql = self.format_string(sql, table)
         sql = str.replace(sql, "?", cond)
-
+		# Reset auto-increment
+        internal_sql = "DELETE FROM SQLITE_SEQUENCE WHERE name= '?'"
+        internal_sql = str.replace(internal_sql, "?", table)
+		
         print sql
         self._curs.execute(sql)
+        self._curs.execute(internal_sql)
         self._curs.execute("VACUUM")
         self._conn.commit()
         
