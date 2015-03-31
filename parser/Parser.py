@@ -21,6 +21,7 @@ class Parser:
         #self._task_global = '(\*+)([ \w\dàé]+)(<[0-9]+/[0-9]+/[0-9]+>)?'
         self._task_keywords = ['DEADLINE', 'ASSIGN', 'FOLLOWERS', 'DEPENDS', 'SCHEDULED']
         self._task_bloc = '(\*+)([\s\wàé:#<\/>@]+)'
+        self._task_title = '([A-Z]+[a-z0-9 ]+)'
         self._task_date = '([A-Z]+)?:?\s+?([<0-9\/>]+)'
         self._task_user = '([A-Z]+)?:?\s+?(@\w+)'
         self._task_tag = '(:\w+:)'
@@ -28,6 +29,7 @@ class Parser:
         self._title_pattern = re.compile(self._title_pattern, re.UNICODE)
         #self._task_global = re.compile(self._task_global, re.UNICODE)
         self._task_bloc = re.compile(self._task_bloc, re.UNICODE)
+        self._task_title = re.compile(self._task_title, re.UNICODE)
         self._task_date = re.compile(self._task_date, re.UNICODE)
         self._task_user = re.compile(self._task_user, re.UNICODE)
         self._task_tag = re.compile(self._task_tag, re.UNICODE)
@@ -75,10 +77,13 @@ class Parser:
             #print tasks.groups()
             #print "({0},{1})\n".format(tasks.start(), tasks.end())
             
+            # Name search
+            
+
             # Date search
             
             dates = self._task_date.findall(bloc.group(2))
-            deadline = scheduled = ""
+            deadline = scheduled = create = ""
             if dates:
             	for date in dates:
             		if date[0]:
@@ -88,11 +93,11 @@ class Parser:
             				elif date[0] == 'SCHEDULED':
             					scheduled = date[1]
             		else:
-            			deadline = date[1]
+            			create = date[1]
             
             # Record task
             
-            #task_id = self._db.insert('Tasks', [("name", "{0}".format(tasks.group(2))), ("date_create", "{0}".format(tasks.group(3)))])
+            task_id = self._db.insert('Tasks', [("name", name), ("date_create", create)])
             
             # Tag search
             
