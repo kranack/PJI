@@ -2,7 +2,8 @@ CREATE TABLE IF NOT EXISTS Tasks (
 	id 			integer			PRIMARY KEY AUTOINCREMENT,
 	name 		varchar(50)		NOT NULL,
 	date_create	date			NOT NULL,
-	date_limit	date			DEFAULT NULL
+	date_limit	date			DEFAULT NULL,
+	status		integer			DEFAULT 0	-- 0: OPEN; 1: DONE; 2: PENDING; 
 );
 
 CREATE TABLE IF NOT EXISTS Depend_Tasks (

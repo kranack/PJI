@@ -79,10 +79,15 @@ class Parser:
             # Name search
             title_offset = 0
             title = self._task_title.search(bloc.group(2), title_offset)
-            name = status = ""
+            name = ""
+            status = 0
             while title != None:
-            	if title.group(1) in self._task_status:
-            		status = title.group(1)
+                _status = re.sub('\s+', '', title.group(1))
+            	if _status in self._task_status:
+                    if _status == "DONE":
+                        status = 1
+                    elif _status == "NEXT":
+                        status = 2
             	else:
             		name = title.group(1)
             	title_offset = title.end()
@@ -97,15 +102,16 @@ class Parser:
             		if date[0]:
             			if date[0] in self._task_keywords:
             				if date[0] == 'DEADLINE':
-            					deadline = date[1]
+            					deadline = re.sub('<', '', date[1])
             				elif date[0] == 'SCHEDULED':
-            					scheduled = date[1]
+            					scheduled = re.sub('<', '', date[1])
             		else:
-            			create = date[1]
+            			create = re.sub('<|>', '', date[1])
+                        create = re.sub('/', '-', create)
             
             # Record task
             
-            task_id = self._db.insert('Tasks', [("name", name), ("date_create", create)])
+            task_id = self._db.insert('Tasks', [("name", name), ("date_create", create), ("status", status)])
             
             # Tag search
             
@@ -114,7 +120,15 @@ class Parser:
             	for tag in tags:
             		tag_id = self._db.insert('Tags', [("label", tag)])
             		self._db.insert('Attach_Tag', [("tag_id", tag_id), ("task_id", task_id)])
-            
+           
+            # Ref search
+
+            refs = self._task_ref.findall(bloc.group(2))
+            _ref = ""
+            if refs:
+                for ref in refs:
+                    _ref += ref[1]
+
             # User search
             
             users = self._task_user.findall(bloc.group(2))
