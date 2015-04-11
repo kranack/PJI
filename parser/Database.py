@@ -30,19 +30,20 @@ class Database(object):
         else:
             raise Exception("%s does not exists in %s" % (table, self._db))
 
-    def select(self, table, fields=[], cond=1):
+    def select(self, table, fields=[], cond='1'):
         f= ""
         if not fields:
             f = "*"
         else:
             for field in fields:
-                f += field+", "
+                f += field+","
             f = f[:-1]
         sql = "SELECT :fields FROM :tab WHERE ?"
         sql = self.format_string(sql, table)
         sql = str.replace(sql, ":fields", f)
-        
-        self._curs.execute(sql, [cond])
+        sql = str.replace(sql, "?", cond)
+        print sql
+        self._curs.execute(sql)
         return self._curs.fetchall()
 
     def insert(self, table, values):
