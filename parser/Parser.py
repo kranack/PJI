@@ -162,7 +162,19 @@ class Parser:
         return title_id
     
     def getRecords(self):
-        _titles = self._db.select('Titles', [("raw_data")], "id = {0}".format(self._title_id))
+        res = ""
+        titles = self._db.select('Titles', [("raw_data")], "id = {0}".format(self._title_id))
+        tasks = self._db.select('Tasks', [("*")], "raw_titles = {0}".format(self._title_id))
+        res += titles[0][0]
+        for task in tasks:
+            res += task[5]
+            if task[4] == 1:
+                res += " DONE "
+            elif task[4] == 2:
+                res += " NEXT "
+            res += u"{0}".format(task[1])
+            #res += task
+        return res
 
     def write_parse_text(self):
         flags = os.O_CREAT | os.O_EXCL | os.O_WRONLY
@@ -180,7 +192,8 @@ class Parser:
         else:
             with os.fdopen(fd, 'w') as fo:
             	fo.seek(0)
-                fo.write(self.getRecords())
+                text = self.getRecords()
+                fo.write(text)
                 #fo.write(self._text)
                 fo.truncate()
                 fo.close()

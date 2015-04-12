@@ -2,13 +2,13 @@
 #+AUTHOR: Damien Calesse
 #+DATE: 06/02/2015
 
-* Apprendre à me servir de orgmode
+* Apprendre à me servir de orgmode #122
 
-** DONE Faire un script en python pour tester pygit2 :gd: :bfgd: #1215454
+** DONE Faire un script en python pour tester pygit2 :gd: :bfgd: #123
 DEADLINE: <09/02/2015>
 ASSIGN: @Damien
 FOLLOWERS: @Mikael
-DEPENDS: #1215454
+DEPENDS: #122
 
 Bla llzllbfldblflll fdlgldfgldflgdlld
 
@@ -21,7 +21,7 @@ fgdgdg
 dfgdgfd
 dfgdf
 
-***  Hello <10/02/2015> @Mathieu :mytag:  @Damien   :mytag2:     #1215454
+***  Hello <10/02/2015> @Mathieu :mytag:  @Damien   :mytag2:     #126
 XXXX
 XXXX
 
