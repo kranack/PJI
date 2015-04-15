@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS Depend_Tasks (
 
 CREATE TABLE IF NOT EXISTS Users (
 	id			integer			PRIMARY KEY AUTOINCREMENT,
+	username	varchar(500)	NOT NULL,
 	email		varchar(150)	NOT NULL,
 	passwd		char(512)		NOT NULL
 );
