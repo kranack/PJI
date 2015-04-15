@@ -56,7 +56,7 @@ class Database(object):
         val = val[:-1]
         sql = self.format_string(sql, table, cols)
         sql = str.replace(sql, "?", val)
-        
+        print sql        
         self._curs.execute(sql)
         self._conn.commit()
         return self._curs.lastrowid

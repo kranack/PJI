@@ -14,7 +14,7 @@ Exemple de regex : (?P<priority>(\*+))(?P<string> [\w\s\dàé]+)(?P<date>\s*<[0-
 
 """
 
-class Parser: 
+class Task: 
 
     def __init__(self):
     	self._db = Database.Database('database.db')
@@ -23,21 +23,23 @@ class Parser:
         self._task_keywords = ['DEADLINE', 'ASSIGN', 'FOLLOWERS', 'DEPENDS', 'SCHEDULED']
         self._task_status = ['DONE', 'NEXT']
         self._task_bloc = '(\*+)([\s\wàé:#<\/>@]+)'
+        self._task_bloc_lines = '[^\n\r]+(?=\n|\z)'
         self._task_title = '(?<!@)([A-Z]+[éàa-z0-9 ]+)'
         self._task_date = '([A-Z]+)?:?\s+?([<0-9\/>]+)'
         self._task_user = '([A-Z]+)?:?\s+?(@\w+)'
         self._task_tag = ':(\w+):'
-        self._task_ref = '(#[0-9]+)'
+        self._task_ref = '#([0-9]+)'
         self._title_pattern = re.compile(self._title_pattern, re.UNICODE)
         #self._task_global = re.compile(self._task_global, re.UNICODE)
         self._task_bloc = re.compile(self._task_bloc, re.UNICODE)
+        self._task_bloc_lines = re.compile(self._task_bloc_lines, re.UNICODE)
         self._task_title = re.compile(self._task_title, re.UNICODE)
         self._task_date = re.compile(self._task_date, re.UNICODE)
         self._task_user = re.compile(self._task_user, re.UNICODE)
         self._task_tag = re.compile(self._task_tag, re.UNICODE)
         self._task_ref = re.compile(self._task_ref, re.UNICODE)
 
-    def start(self, orgfile):
+    def parse(self, orgfile):
         #assert orgfile is FileType
 
         self._in = orgfile
@@ -74,15 +76,18 @@ class Parser:
         # TODO: Record users, affialiations and refs
         #
         offset = 0
+        task_id = 0
+        next_id = 0
         bloc = self._task_bloc.search(text, offset)
         while bloc != None:
             #print tasks.groups()
             #print "({0},{1})\n".format(tasks.start(), tasks.end())
-            
+            print "Entrée dans le bloc : {0}".format(bloc.group(2))
             # Name search
             title_offset = 0
             title = self._task_title.search(bloc.group(2), title_offset)
             name = ""
+            desc = ""
             status = 0
             while title != None:
                 _status = re.sub('\s+', '', title.group(1))
@@ -91,11 +96,21 @@ class Parser:
                         status = 1
                     elif _status == "NEXT":
                         status = 2
-            	else:
+                elif name == "":
             		name = title.group(1)
             	title_offset = title.end()
             	title = self._task_title.search(bloc.group(2), title_offset)
-
+           
+            # Description Search
+            lines = self._task_bloc_lines.findall(bloc.group(2))
+            line_cpt = 0
+            if lines:
+                for line in lines:
+                    if line_cpt > 0:
+                        desc += "{0}\n".format(line)
+                    line_cpt = line_cpt+1
+            
+            print "Name : {0}; Description: {1};".format(name, desc)
             # Date search
             
             dates = self._task_date.findall(bloc.group(2))
@@ -117,16 +132,14 @@ class Parser:
             refs = self._task_ref.findall(bloc.group(2))
             _ref = ""
             if refs:
-                for ref in refs:
-                    _ref += ref[1]
+                _ref = refs[0]
             
             # Record task
-            
             if _ref != "":
 	            next_id = int(_ref)
             else:
 	        	next_id = task_id+1
-            task_id = self._db.insert('Tasks', [("id", next_id), ("name", name.decode('utf-8')), ("date_create", create), ("status", status), ("priority", bloc.group(1)), ("raw_titles", title_id)])
+            task_id = self._db.insert('Tasks', [("id", int(next_id)), ("name", name.decode('utf-8')), ("description", desc.decode('utf-8')), ("date_create", create), ("status", status), ("priority", bloc.group(1)), ("raw_titles", title_id)])
             
             # Tag search
             
@@ -166,21 +179,27 @@ class Parser:
 
         return title_id
     
-    def getRecords(self):
+    def to_db(self):
+    	print "record to database"
+    
+    def from_db(self):
         res = ""
         titles = self._db.select('Titles', [("raw_data")], "id = {0}".format(self._title_id))
         tasks = self._db.select('Tasks', [("*")], "raw_titles = {0}".format(self._title_id))
         res += "{0}\n".format(titles[0][0])
         for task in tasks:
-            res += "{0} ".format(task[5])
-            if task[4] == 1:
+            res += "{0} ".format(task[6])
+            if task[5] == 1:
                 res += "DONE "
-            elif task[4] == 2:
+            elif task[5] == 2:
                 res += "NEXT "
             res += u"{0}".format(task[1])
+            if task[3] != "":
+	            res += " <{0}>".format(task[3])
+            res += " #{0}".format(task[0])
             if task[2] != "":
-	            res += " {0}".format(task[2])
-            res += "\n"
+                res += "\n\n{0}".format(task[2])
+            res += "\n\n"
             #res += task
         return res
 
@@ -200,7 +219,7 @@ class Parser:
         else:
             with codecs.open(self._out, 'w', "utf-8") as fo:
             	fo.seek(0)
-                text = self.getRecords()
+                text = self.from_db()
                 fo.write(text)
                 #fo.write(self._text)
                 fo.truncate()

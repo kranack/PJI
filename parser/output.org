@@ -2,9 +2,37 @@
 #+AUTHOR: Damien Calesse
 #+DATE: 06/02/2015
 
-* Apprendre à me servir de orgmode 
-** DONE Bla llzllbfldblflll fdlgldfgldflgdlld
-***  09-02-2015
-***  10-02-2015
-*** Hello  10-02-2015
-** NEXT Faire une base de données pour tester sqlite3 avec python
+* Apprendre à me servir de orgmode  #122
+
+** DONE Faire un script en python pour tester pygit2  #123
+
+DEADLINE: <09/02/2015>
+ASSIGN: @Damien
+FOLLOWERS: @Mikael
+DEPENDS: #122
+Bla llzllbfldblflll fdlgldfgldflgdlld
+
+
+***  <09-02-2015> #3
+
+gdfgdfgdfgfgfdgdfgdf gdfgdfgdfgfd
+fgdgdg
+
+
+***  <10-02-2015> #4
+
+dfgdgfd
+dfgdf
+
+
+*** Hello  <10-02-2015> #126
+
+XXXX
+XXXX
+
+
+** NEXT Faire une base de données pour tester sqlite3 avec python #6
+
+SCHEDULED: <12/02/2015>
+
+

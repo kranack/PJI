@@ -1,6 +1,6 @@
-import Parser
+import Task
 
-parser = Parser.Parser()
+parser = Task.Task()
 
-parser.start('./Test.org')
+parser.parse('./Test.org')
 parser.write('./output.org')
