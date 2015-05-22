@@ -42,7 +42,7 @@ class Database(object):
         sql = self.format_string(sql, table)
         sql = str.replace(sql, ":fields", f)
         sql = str.replace(sql, "?", cond)
-        print sql
+        
         self._curs.execute(sql)
         return self._curs.fetchall()
 

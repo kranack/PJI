@@ -19,6 +19,8 @@ class Parser:
 
     def __init__(self):
     	self._db = Database.Database('database.db')
+        self._tasks = list()
+
         self._title_pattern = '#\+([A-Z]+): ([/0-9a-zA-Z ]+)'
         #self._task_global = '(\*+)([ \w\dàé]+)(<[0-9]+/[0-9]+/[0-9]+>)?'
         self._task_keywords = ['DEADLINE', 'ASSIGN', 'FOLLOWERS', 'DEPENDS', 'SCHEDULED']
@@ -60,9 +62,9 @@ class Parser:
             else:
                 raise
         else:
-		    with os.fdopen(fd, "rb") as fi:
-		    	text = fi.read()
-		    	fi.close()
+	     with os.fdopen(fd, "rb") as fi:
+	    	text = fi.read()
+	    	fi.close()
         _titles = _tasks = _users = _tags = _refs = ""
         titles =  self._title_pattern.findall(text)
 
@@ -78,15 +80,14 @@ class Parser:
         #
         offset = 0
         task_id = 0
-        next_id = 0
         bloc = self._task_bloc.search(text, offset)
         while bloc != None:
             #print tasks.groups()
             #print "({0},{1})\n".format(tasks.start(), tasks.end())
             print "Entrée dans le bloc : {0}".format(bloc.group(2))
-            task = Task.init()
-            task.parse(bloc, title_id)
-            self._tasks[] = task
+            task = Task.Task()
+            task_id = task.parse(bloc, title_id, task_id)
+            self._tasks.append(task)
             
 
             offset = bloc.end()
@@ -121,8 +122,11 @@ class Parser:
             with codecs.open(self._out, 'w', "utf-8") as fo:
             	fo.seek(0)
                 #text = self.from_db()
-                #for task in self._tasks:
-                fo.write(text)
+                txtToPrint = ""
+                txtToPrint += self._tasks[0].titles_from_db()
+                for task in self._tasks:
+                    txtToPrint += task.from_db()
+                fo.write(txtToPrint)
                 #fo.write(self._text)
                 fo.truncate()
                 fo.close()
