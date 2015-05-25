@@ -22,29 +22,11 @@ class Parser:
         self._tasks = list()
 
         self._title_pattern = '#\+([A-Z]+): ([/0-9a-zA-Z ]+)'
-        #self._task_global = '(\*+)([ \w\dàé]+)(<[0-9]+/[0-9]+/[0-9]+>)?'
-        self._task_keywords = ['DEADLINE', 'ASSIGN', 'FOLLOWERS', 'DEPENDS', 'SCHEDULED']
-        self._task_status = ['DONE', 'NEXT']
         self._task_bloc = '(\*+)([\s\wàé:#<\/>@]+)'
-        self._task_bloc_lines = '[^\n\r]+(?=\n|\z)'
-        self._task_title = '(?<!@)([A-Z]+[éàa-z0-9 ]+)'
-        self._task_date = '([A-Z]+)?:?\s+?([<0-9\/>]+)'
-        self._task_user = '([A-Z]+)?:?\s+?(@\w+)'
-        self._task_tag = ':(\w+):'
-        self._task_ref = '#([0-9]+)'
         self._title_pattern = re.compile(self._title_pattern, re.UNICODE)
-        #self._task_global = re.compile(self._task_global, re.UNICODE)
         self._task_bloc = re.compile(self._task_bloc, re.UNICODE)
-        self._task_bloc_lines = re.compile(self._task_bloc_lines, re.UNICODE)
-        self._task_title = re.compile(self._task_title, re.UNICODE)
-        self._task_date = re.compile(self._task_date, re.UNICODE)
-        self._task_user = re.compile(self._task_user, re.UNICODE)
-        self._task_tag = re.compile(self._task_tag, re.UNICODE)
-        self._task_ref = re.compile(self._task_ref, re.UNICODE)
 
     def parse(self, orgfile):
-        #assert orgfile is FileType
-
         self._in = orgfile
         self._title_id = self.get_parse_text()
     
