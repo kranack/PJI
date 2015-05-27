@@ -1,7 +1,8 @@
 import re
 import web
 import mimetypes
-import db.Database
+import controllers.Database
+#import controllers
 
 t_globals = dict(
   datestr=web.datestr,
@@ -13,12 +14,10 @@ render._keywords['globals']['render'] = render
 urls = (
         '/', 'index',
         '/(?:img|js|css)/.*', 'public',
+        #'/(?:img|js|css)/.*', controllers.public,
         )
-
-def mime_type(filename):
-    return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
-
-# Images, Javascript and css files
+        
+        
 class public:
     def GET(self):
         public_dir = 'public'
@@ -29,10 +28,14 @@ class public:
         except IOError:
             raise web.notfound()
 
+def mime_type(filename):
+    return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+
+
 # Index class for homepage
 class index:
     def GET(self):
-    	_db = db.Database.Database("db/database.db")
+    	_db = controllers.Database.Database("db/database.db")
         tasks = _db.select("Tasks")
         new_tasks = list()
         for task in tasks:

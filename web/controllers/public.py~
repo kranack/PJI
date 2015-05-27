@@ -3,7 +3,7 @@ import mimetypes
 
 class public:
     def GET(self):
-        public_dir = 'public'
+        public_dir = '../public'
         try:
             file_name = web.ctx.path.split('/')[-1]
             web.header('Content-type', mime_type(file_name))
