@@ -3,7 +3,7 @@ import web
 import mimetypes
 import controllers.Database
 import controllers.public
-import controllers.parse
+import controllers.task
 
 t_globals = dict(
   datestr=web.datestr,
@@ -14,8 +14,10 @@ render._keywords['globals']['render'] = render
 
 urls = (
         '/', 'index',
-        '/parser/.*', controllers.parse.parse,
-        '/(?:img|js|css)/.*', controllers.public.public,
+        '/task', controllers.task.task,
+        '/task/create', controllers.task.create,
+        '/task/delete', controllers.task.delete,
+        '/(?:img|js|css|fonts)/.*', controllers.public.public,
         )
 
 
@@ -24,6 +26,7 @@ class index:
     def GET(self):
     	_db = controllers.Database.Database("db/database.db")
         tasks = _db.select("Tasks")
+        raw_title = _db.select("Titles", [("id")])
         new_tasks = list()
         for task in tasks:
             attach_tag = _db.select("Attach_Tag", ["tag_id"], "task_id={0}".format(task[0]))
@@ -44,7 +47,7 @@ class index:
             #l[2] = new
             l.append(tagsTxt)
             new_tasks.append(tuple(l))
-        return render.index(new_tasks)
+        return render.index(raw_title[0][0], new_tasks)
 
 
 

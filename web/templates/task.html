@@ -1,9 +1,12 @@
 $def with (task)
 <div class="row">
-	<div class="ten columns">
-		<div class="task">
-			<p> #$task[0] : $task[1] $task[8]</p>
-			<pre class="description">$task[2]</pre>
-		</div>
+    <div class="task" data-id="$task[0]">
+	    <div class="ten columns">
+		    <p> $task[1] $task[8]</p>
+		    <pre class="description">$task[2]</pre>
+	    </div>
+	    <div class="two columns">
+	        <span class="delete"><i class="fa fa-trash-o"></i></span>
+	    </div>
 	</div>
 </div>
