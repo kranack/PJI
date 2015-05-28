@@ -2,7 +2,8 @@ import re
 import web
 import mimetypes
 import controllers.Database
-#import controllers
+import controllers.public
+import controllers.parse
 
 t_globals = dict(
   datestr=web.datestr,
@@ -13,23 +14,9 @@ render._keywords['globals']['render'] = render
 
 urls = (
         '/', 'index',
-        '/(?:img|js|css)/.*', 'public',
-        #'/(?:img|js|css)/.*', controllers.public,
+        '/parser/.*', controllers.parse.parse,
+        '/(?:img|js|css)/.*', controllers.public.public,
         )
-        
-        
-class public:
-    def GET(self):
-        public_dir = 'public'
-        try:
-            file_name = web.ctx.path.split('/')[-1]
-            web.header('Content-type', mime_type(file_name))
-            return open(public_dir + web.ctx.path, 'rb').read()
-        except IOError:
-            raise web.notfound()
-
-def mime_type(filename):
-    return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
 
 
 # Index class for homepage

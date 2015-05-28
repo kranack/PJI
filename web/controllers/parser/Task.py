@@ -1,6 +1,6 @@
 # coding=utf-8
 
-import Database
+from controllers import Database
 import re
 
 

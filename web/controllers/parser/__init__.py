@@ -1,3 +1,3 @@
 
-import Parser.py
-import Task.py
+import Parser
+import Task
