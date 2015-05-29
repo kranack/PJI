@@ -7,6 +7,7 @@ import datetime
 import Database
 import parser.Parser
 import parser.Task
+import parse
 
 class task:
   def GET(self):
@@ -20,7 +21,9 @@ class create:
   def POST(self):
     #mettre à jour le contenu d'un projet
     data = web.input()
-    projet_to_db(data)
+    resp = projet_to_db(data)
+    if resp >= 0:
+      update_file(data.raw_titles)
     response = dict()
     response["status"] = 1
     web.header('Content-Type', 'application/json')
@@ -30,14 +33,17 @@ class delete:
   def POST(self):
     data = web.input()
     print data
-    delete_task(data)
+    project_id = delete_task(data)
+    update_file(project_id)
     response = dict()
     response["status"] = 1
     web.header('Content-Type', 'application/json')
     return json.dumps(response)
 
+
+# Récupère toutes les tâches d'un projet
 def projet_from_db(projet):
-  db = Database.Database("../db/database.db")
+  db = Database.Database("db/database.db")
   try:
     tasks = db.select("Tasks", ["*"], "raw_titles = {0}".format(projet))
     new_tasks = dict()
@@ -64,6 +70,8 @@ def projet_from_db(projet):
   except Exception:
     raise web.notfound()
 
+
+# Enregistre une tâche
 def projet_to_db(projet):
   db = Database.Database("db/database.db")
   try:
@@ -73,6 +81,15 @@ def projet_to_db(projet):
   except Exception:
     raise web.notfound()
 
+
+# Supprime une tâche
 def delete_task(task):
   db = Database.Database("db/database.db")
+  project = db.select("Tasks", ["raw_titles"], "id = {0}".format(task.id))
   db.delete("Tasks", "id = {0}".format(task.id))
+  return project[0][0]
+
+
+def update_file(project):
+  updater = parse.parse()
+  updater.export_project(project)
